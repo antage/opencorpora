@@ -1,0 +1,21 @@
+[package]
+name = "opencorpora"
+description = "Reading and parsing opencorpora.org XML-dictionary."
+repository = "https://github.com/antage/opencorpora"
+readme = "README.md"
+license = "MIT"
+keywords = ["opencorpora", "dictionary", "russian"]
+version = "0.1.0"
+authors = ["Anton Ageev <antage@gmail.com>"]
+exclude = ["dict/*"]
+
+[dependencies]
+quick-xml = "^0.1"
+quick-error = "^1.0"
+
+[dev-dependencies]
+hyper = "^0.8"
+bzip2 = "^0.3"
+
+[profile.test]
+opt-level = 3
