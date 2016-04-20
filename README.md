@@ -1,5 +1,7 @@
 # opencorpora
 
+[![Build Status](https://travis-ci.org/antage/opencorpora.svg?branch=master)](https://travis-ci.org/antage/opencorpora)
+
 Данная библиотека написана для парсинга словаря проекта [opencorpora.org](http://opencorpora.org/dict.php). Библиотека читает словарь в XML-формате и формирует данные в виде набора структур.
 
 [Документация](https://antage.github.io/opencorpora/opencorpora/index.html)
