@@ -6,9 +6,10 @@ documentation = "https://antage.github.io/opencorpora/opencorpora/index.html"
 readme = "README.md"
 license = "MIT"
 keywords = ["opencorpora", "dictionary", "russian"]
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Anton Ageev <antage@gmail.com>"]
 exclude = ["dict/*"]
+include = ["**/*.rs", "Cargo.toml"]
 
 [dependencies]
 quick-xml = "^0.1"
