@@ -2,6 +2,7 @@
 name = "opencorpora"
 description = "Reading and parsing opencorpora.org XML-dictionary."
 repository = "https://github.com/antage/opencorpora"
+documentation = "https://antage.github.io/opencorpora/opencorpora/index.html"
 readme = "README.md"
 license = "MIT"
 keywords = ["opencorpora", "dictionary", "russian"]
