@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Element` struct in crate `quick_xml`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Element">
+
+    <title>quick_xml::Element - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>quick_xml</a></p><script>window.sidebarCurrent = {name: 'Element', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>quick_xml</a>::<wbr><a class='struct' href=''>Element</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-389' class='srclink' href='../src/quick_xml/lib.rs.html#390-399' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Element {
+    // some fields omitted
+}</pre><div class='docblock'><p>General content of an event (aka node)</p>
+
+<p>Element is a wrapper over the bytes representing the node:</p>
+
+<p>E.g. given a node <code>&lt;name att1=&quot;a&quot;, att2=&quot;b&quot;&gt;</code>, the corresponding <code>Event</code> will be </p>
+
+<pre class='rust rust-example-rendered'>
+<span class='ident'>Event</span>::<span class='ident'>Start</span>(<span class='ident'>Element</span> { 
+    <span class='ident'>buf</span>:    <span class='string'>b&quot;name att1=\&quot;a\&quot;, att2=\&quot;b\&quot;&quot;</span>,
+    <span class='ident'>start</span>:  <span class='number'>0</span>,
+    <span class='ident'>end</span>:    <span class='string'>b&quot;name att1=\&quot;a\&quot;, att2=\&quot;b\&quot;&quot;</span>.<span class='ident'>len</span>(),
+    <span class='ident'>name_end</span>: <span class='string'>b&quot;name&quot;</span>.<span class='ident'>len</span>()
+})</pre>
+
+<p>For performance reasons, most of the time, no character searches but 
+<code>b&#39;&lt;&#39;</code> and <code>b&#39;&gt;&#39;</code> are performed:</p>
+
+<ul>
+<li>no attribute parsing: use lazy <code>Attributes</code> iterator only when needed</li>
+<li>no namespace awareness as it requires parsing all <code>Start</code> element attributes</li>
+<li>no utf8 conversion: prefer searching statically known bytes patterns when possible 
+(<code>e.name() == b&quot;myname&quot;</code>), then use the <code>.as_str()</code> or <code>.into_string()</code> methods</li>
+</ul>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../quick_xml/struct.Element.html' title='quick_xml::Element'>Element</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>&lt;A&gt;(name: A) -&gt; <a class='struct' href='../quick_xml/struct.Element.html' title='quick_xml::Element'>Element</a> <span class='where'>where A: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;</span></code></h4>
+<div class='docblock'><p>Creates a new Element from the given name.
+name is a reference that can be converted to a byte slice, such as &amp;[u8] or &amp;str</p>
+</div><h4 id='method.with_attributes' class='method'><code>fn <a href='#method.with_attributes' class='fnname'>with_attributes</a>&lt;K, V, I&gt;(self, attributes: I) -&gt; Self <span class='where'>where K: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;, V: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;, I: <a class='trait' href='https://doc.rust-lang.org/nightly/core/iter/trait.IntoIterator.html' title='core::iter::IntoIterator'>IntoIterator</a>&lt;Item=<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>K, V<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;</span></code></h4>
+<div class='docblock'><p>Consumes self and adds attributes to this element from an iterator
+over (key, value) tuples.
+Key and value can be anything that implements the AsRef&lt;[u8]&gt; trait,
+like byte slices and strings.</p>
+</div><h4 id='method.name' class='method'><code>fn <a href='#method.name' class='fnname'>name</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a></code></h4>
+<div class='docblock'><p>name as &amp;<a href="without%20eventual%20attributes">u8</a></p>
+</div><h4 id='method.content' class='method'><code>fn <a href='#method.content' class='fnname'>content</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a></code></h4>
+<div class='docblock'><p>whole content as &amp;<a href="including%20eventual%20attributes">u8</a></p>
+</div><h4 id='method.unescaped_content' class='method'><code>fn <a href='#method.unescaped_content' class='fnname'>unescaped_content</a>(&amp;self) -&gt; <a class='type' href='../quick_xml/error/type.ResultPos.html' title='quick_xml::error::ResultPos'>ResultPos</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>gets escaped content</p>
+
+<p>Searches for &#39;&amp;&#39; into content and try to escape the coded character if possible
+returns Malformed error with index within element if &#39;&amp;&#39; is not followed by &#39;;&#39;</p>
+</div><h4 id='method.attributes' class='method'><code>fn <a href='#method.attributes' class='fnname'>attributes</a>(&amp;self) -&gt; <a class='struct' href='../quick_xml/attributes/struct.Attributes.html' title='quick_xml::attributes::Attributes'>Attributes</a></code></h4>
+<div class='docblock'><p>gets attributes iterator</p>
+</div><h4 id='method.unescaped_attributes' class='method'><code>fn <a href='#method.unescaped_attributes' class='fnname'>unescaped_attributes</a>(&amp;self) -&gt; <a class='struct' href='../quick_xml/attributes/struct.UnescapedAttributes.html' title='quick_xml::attributes::UnescapedAttributes'>UnescapedAttributes</a></code></h4>
+<div class='docblock'><p>gets attributes iterator whose attribute values are unescaped (&#39;&amp;...;&#39; replaced
+by their corresponding cgaracter)</p>
+</div><h4 id='method.extend_attributes' class='method'><code>fn <a href='#method.extend_attributes' class='fnname'>extend_attributes</a>&lt;K, V, I&gt;(&amp;mut self, attributes: I) -&gt; &amp;mut <a class='struct' href='../quick_xml/struct.Element.html' title='quick_xml::Element'>Element</a> <span class='where'>where K: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;, V: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;, I: <a class='trait' href='https://doc.rust-lang.org/nightly/core/iter/trait.IntoIterator.html' title='core::iter::IntoIterator'>IntoIterator</a>&lt;Item=<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>K, V<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;</span></code></h4>
+<div class='docblock'><p>extend the attributes of this element from an iterator over (key, value) tuples.
+Key and value can be anything that implements the AsRef&lt;[u8]&gt; trait,
+like byte slices and strings.</p>
+</div><h4 id='method.into_string' class='method'><code>fn <a href='#method.into_string' class='fnname'>into_string</a>(self) -&gt; <a class='type' href='../quick_xml/error/type.Result.html' title='quick_xml::error::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;</code></h4>
+<div class='docblock'><p>consumes entire self (including eventual attributes!) and returns <code>String</code></p>
+
+<p>useful when we need to get Text event value (which don&#39;t have attributes)</p>
+</div><h4 id='method.push_attribute' class='method'><code>fn <a href='#method.push_attribute' class='fnname'>push_attribute</a>&lt;K, V&gt;(&amp;mut self, key: K, value: V) <span class='where'>where K: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;, V: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;</span></code></h4>
+<div class='docblock'><p>Adds an attribute to this element from the given key and value.
+Key and value can be anything that implements the AsRef&lt;[u8]&gt; trait,
+like byte slices and strings.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../quick_xml/struct.Element.html' title='quick_xml::Element'>Element</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../quick_xml/struct.Element.html' title='quick_xml::Element'>Element</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../quick_xml/struct.Element.html' title='quick_xml::Element'>Element</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "quick_xml";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

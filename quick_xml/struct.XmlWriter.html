@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `XmlWriter` struct in crate `quick_xml`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, XmlWriter">
+
+    <title>quick_xml::XmlWriter - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>quick_xml</a></p><script>window.sidebarCurrent = {name: 'XmlWriter', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>quick_xml</a>::<wbr><a class='struct' href=''>XmlWriter</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-550' class='srclink' href='../src/quick_xml/lib.rs.html#680-683' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct XmlWriter&lt;W: <a class='trait' href='https://doc.rust-lang.org/nightly/std/io/trait.Write.html' title='std::io::Write'>Write</a>&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>Xml writer</p>
+
+<p>Consumes a <code>Write</code> and writes xml Events</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>quick_xml</span>::{<span class='ident'>AsStr</span>, <span class='ident'>Element</span>, <span class='ident'>Event</span>, <span class='ident'>XmlReader</span>, <span class='ident'>XmlWriter</span>};
+<span class='kw'>use</span> <span class='ident'>quick_xml</span>::<span class='ident'>Event</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Cursor</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>;
+ 
+<span class='kw'>let</span> <span class='ident'>xml</span> <span class='op'>=</span> <span class='string'>r#&quot;&lt;this_tag k1=&quot;v1&quot; k2=&quot;v2&quot;&gt;&lt;child&gt;text&lt;/child&gt;&lt;/this_tag&gt;&quot;#</span>;
+<span class='kw'>let</span> <span class='ident'>reader</span> <span class='op'>=</span> <span class='ident'>XmlReader</span>::<span class='ident'>from_str</span>(<span class='ident'>xml</span>).<span class='ident'>trim_text</span>(<span class='boolval'>true</span>);
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>writer</span> <span class='op'>=</span> <span class='ident'>XmlWriter</span>::<span class='ident'>new</span>(<span class='ident'>Cursor</span>::<span class='ident'>new</span>(<span class='ident'>Vec</span>::<span class='ident'>new</span>()));
+<span class='kw'>for</span> <span class='ident'>r</span> <span class='kw'>in</span> <span class='ident'>reader</span> {
+    <span class='kw'>match</span> <span class='ident'>r</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Event</span>::<span class='ident'>Start</span>(<span class='kw-2'>ref</span> <span class='ident'>e</span>)) <span class='kw'>if</span> <span class='ident'>e</span>.<span class='ident'>name</span>() <span class='op'>==</span> <span class='string'>b&quot;this_tag&quot;</span> <span class='op'>=&gt;</span> {
+            <span class='comment'>// collect existing attributes</span>
+            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>attrs</span> <span class='op'>=</span> <span class='ident'>e</span>.<span class='ident'>attributes</span>().<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>attr</span><span class='op'>|</span> <span class='ident'>attr</span>.<span class='ident'>unwrap</span>()).<span class='ident'>collect</span>::<span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;&gt;</span>();
+
+            <span class='comment'>// copy existing attributes, adds a new my-key=&quot;some value&quot; attribute</span>
+            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>elem</span> <span class='op'>=</span> <span class='ident'>Element</span>::<span class='ident'>new</span>(<span class='string'>&quot;my_elem&quot;</span>).<span class='ident'>with_attributes</span>(<span class='ident'>attrs</span>);
+            <span class='ident'>elem</span>.<span class='ident'>push_attribute</span>(<span class='string'>b&quot;my-key&quot;</span>, <span class='string'>&quot;some value&quot;</span>);
+
+            <span class='comment'>// writes the event to the writer</span>
+            <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>writer</span>.<span class='ident'>write</span>(<span class='ident'>Start</span>(<span class='ident'>elem</span>)).<span class='ident'>is_ok</span>());
+        },
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Event</span>::<span class='ident'>End</span>(<span class='kw-2'>ref</span> <span class='ident'>e</span>)) <span class='kw'>if</span> <span class='ident'>e</span>.<span class='ident'>name</span>() <span class='op'>==</span> <span class='string'>b&quot;this_tag&quot;</span> <span class='op'>=&gt;</span> {
+            <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>writer</span>.<span class='ident'>write</span>(<span class='ident'>End</span>(<span class='ident'>Element</span>::<span class='ident'>new</span>(<span class='string'>&quot;my_elem&quot;</span>))).<span class='ident'>is_ok</span>());
+        },
+        <span class='prelude-val'>Ok</span>(<span class='ident'>e</span>) <span class='op'>=&gt;</span> <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>writer</span>.<span class='ident'>write</span>(<span class='ident'>e</span>).<span class='ident'>is_ok</span>()),
+        <span class='prelude-val'>Err</span>((<span class='ident'>e</span>, <span class='ident'>pos</span>)) <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;{:?} at position {}&quot;</span>, <span class='ident'>e</span>, <span class='ident'>pos</span>),
+    }
+}
+
+<span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='ident'>writer</span>.<span class='ident'>into_inner</span>().<span class='ident'>into_inner</span>();
+<span class='kw'>let</span> <span class='ident'>expected</span> <span class='op'>=</span> <span class='string'>r#&quot;&lt;my_elem k1=&quot;v1&quot; k2=&quot;v2&quot; my-key=&quot;some value&quot;&gt;&lt;child&gt;text&lt;/child&gt;&lt;/my_elem&gt;&quot;#</span>;
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>result</span>, <span class='ident'>expected</span>.<span class='ident'>as_bytes</span>());</pre>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;W: <a class='trait' href='https://doc.rust-lang.org/nightly/std/io/trait.Write.html' title='std::io::Write'>Write</a>&gt; <a class='struct' href='../quick_xml/struct.XmlWriter.html' title='quick_xml::XmlWriter'>XmlWriter</a>&lt;W&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(inner: W) -&gt; <a class='struct' href='../quick_xml/struct.XmlWriter.html' title='quick_xml::XmlWriter'>XmlWriter</a>&lt;W&gt;</code></h4>
+<div class='docblock'><p>Creates a XmlWriter from a generic Write</p>
+</div><h4 id='method.into_inner' class='method'><code>fn <a href='#method.into_inner' class='fnname'>into_inner</a>(self) -&gt; W</code></h4>
+<div class='docblock'><p>Consumes this Xml Writer, returning the underlying writer.</p>
+</div><h4 id='method.write' class='method'><code>fn <a href='#method.write' class='fnname'>write</a>(&amp;mut self, event: <a class='enum' href='../quick_xml/enum.Event.html' title='quick_xml::Event'>Event</a>) -&gt; <a class='type' href='../quick_xml/error/type.Result.html' title='quick_xml::error::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Writes the given event to the underlying writer.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "quick_xml";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
