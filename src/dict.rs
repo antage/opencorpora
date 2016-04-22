@@ -4,7 +4,7 @@ use std::rc::Rc;
 ///
 /// Список всех граммем можно [посмотреть](http://opencorpora.org/dict.php?act=gram)
 /// на сайте [opencorpora.org](http://opencorpora.org).
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct Grammeme {
     /// Имя родительской граммемы (значение `None` индицирует, что это граммема верхнего уровня)
     pub parent: Option<String>,
@@ -20,7 +20,7 @@ pub struct Grammeme {
 }
 
 /// Тип ограничения на использование граммемы.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum RestrictionKind {
     /// Необязательный
     Maybe,
@@ -33,7 +33,7 @@ pub enum RestrictionKind {
 }
 
 /// Область ограничения на использование граммемы.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum RestrictionScope {
     /// Лексема
     Lemma,
@@ -46,7 +46,7 @@ pub enum RestrictionScope {
 ///
 /// Более подробное описание [приведено](http://opencorpora.org/dict.php?act=gram_restr)
 /// на сайте [opencorpora.org](http://opencorpora.org).
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Restriction {
     /// Тип ограничения (см. [документацию](enum.RestrictionKind.html) типа `RestrictionKind`)
     pub kind: RestrictionKind,
@@ -83,7 +83,7 @@ impl Default for Restriction {
 }
 
 /// Структура словоформы лексемы.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct Form {
     /// Текстовое представление словоформы
     pub word: String,
@@ -93,7 +93,7 @@ pub struct Form {
 }
 
 /// Структура описывающая лексему.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct Lemma {
     /// Числовой идентификатор лексемы
     pub id: usize,
@@ -112,7 +112,7 @@ pub struct Lemma {
 }
 
 /// Тип связи между лексемами.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct LinkKind {
     /// Числовой идентификатор типа связи.
     /// Используется в типе `Link`.
@@ -123,7 +123,7 @@ pub struct LinkKind {
 }
 
 /// Структура хранящая связь между двумя лексемами.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct Link {
     /// Числовой идентификатор связи
     pub id: usize,
@@ -139,7 +139,7 @@ pub struct Link {
 }
 
 /// Структура содержащая данные словаря.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Dict {
     /// Версия словаря
     pub version: String,
