@@ -7,13 +7,13 @@ readme = "README.md"
 license = "MIT"
 keywords = ["opencorpora", "dictionary", "russian"]
 categories = ["parser-implementations"]
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Anton Ageev <antage@gmail.com>"]
 exclude = ["target", "dict/*", "Makefile"]
 include = ["**/*.rs", "Cargo.toml", "LICENSE"]
 
 [badges]
-travis-ci = { repository = "https://github.com/antage/opencorpora" }
+travis-ci = { repository = "antage/opencorpora" }
 
 [dependencies]
 quick-xml = "^0.6.2"
