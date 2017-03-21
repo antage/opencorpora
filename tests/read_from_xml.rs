@@ -19,5 +19,6 @@ fn test_read_from_xml() {
         .unwrap();
     let decompressed = BzDecoder::new(res);
 
-    assert!(Dict::read_from_xml(decompressed).is_ok());
+    let dict = Dict::read_from_xml(decompressed);
+    assert!(dict.is_ok());
 }

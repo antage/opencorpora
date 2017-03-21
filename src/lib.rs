@@ -54,14 +54,13 @@ quick_error! {
     #[derive(Debug)]
     pub enum DictError {
         /// Ошибка разбора XML.
-        XmlError { err: ::quick_xml::error::Error, pos: usize } {
-            from(e: (::quick_xml::error::Error, usize)) -> {
-                err: e.0,
-                pos: e.1
+        XmlError { err: ::quick_xml::errors::Error } {
+            from(e: ::quick_xml::errors::Error) -> {
+                err: e
             }
             cause(err)
             description(err.description())
-            display("XML error at {} position: {}", pos, err)
+            display("XML error: {}", err)
         }
 
         /// Текст не соответствует кодировке UTF-8.
@@ -111,20 +110,22 @@ enum ParsingState {
 }
 
 fn string_from_bytes(b: &[u8]) -> Result<String, std::str::Utf8Error> {
-    let s = try!(std::str::from_utf8(b));
+    let s = std::str::from_utf8(b)?;
     Ok(s.to_owned())
 }
 
 fn integer_from_bytes<N>(b: &[u8]) -> Result<N, DictError>
     where N: std::str::FromStr<Err=std::num::ParseIntError>
 {
-    let s = try!(std::str::from_utf8(b));
-    Ok(try!(s.parse()))
+    let s = std::str::from_utf8(b)?;
+    Ok(s.parse()?)
 }
 
-fn get_restriction_scope(el: &quick_xml::Element) -> Result<RestrictionScope, DictError> {
+fn get_restriction_scope(el: &quick_xml::events::BytesStart) -> Result<RestrictionScope, DictError> {
+    use quick_xml::events::attributes::Attribute;
+
     for attr in el.attributes() {
-        let (name, value) = try!(attr);
+        let Attribute { key: name, value } = attr?;
         match name {
             b"type" => {
                 match value {
@@ -135,7 +136,7 @@ fn get_restriction_scope(el: &quick_xml::Element) -> Result<RestrictionScope, Di
                         return Ok(RestrictionScope::Form);
                     },
                     _ => {
-                        let s = try!(std::str::from_utf8(value));
+                        let s = std::str::from_utf8(value)?;
                         let errmsg = format!("invalid restriction scope: '{}'", s);
                         return Err(DictError::ParsingError(errmsg));
                     },
@@ -148,7 +149,7 @@ fn get_restriction_scope(el: &quick_xml::Element) -> Result<RestrictionScope, Di
 }
 
 fn get_grammeme(map: &std::collections::HashMap<String, std::rc::Rc<Grammeme>>, name: &[u8]) -> Result<std::rc::Rc<Grammeme>, DictError> {
-    let s = try!(string_from_bytes(name));
+    let s = string_from_bytes(name)?;
     match map.get(&s) {
         Some(grm) => {
             Ok(grm.clone())
@@ -160,7 +161,7 @@ fn get_grammeme(map: &std::collections::HashMap<String, std::rc::Rc<Grammeme>>, 
 }
 
 fn get_lemma(map: &std::collections::HashMap<usize, std::rc::Rc<Lemma>>, id_str: &[u8]) -> Result<std::rc::Rc<Lemma>, DictError> {
-    let id = try!(integer_from_bytes(id_str));
+    let id = integer_from_bytes(id_str)?;
     match map.get(&id) {
         Some(lmt) => {
             Ok(lmt.clone())
@@ -179,7 +180,9 @@ impl Dict {
         use std::str;
         use std::collections::HashMap;
 
-        use quick_xml::{XmlReader, Event};
+        use quick_xml::reader::Reader;
+        use quick_xml::events::Event;
+        use quick_xml::events::attributes::Attribute;
 
         let mut state = ParsingState::Start;
 
@@ -194,22 +197,84 @@ impl Dict {
         let mut grammeme_by_name = HashMap::<String, Rc<Grammeme>>::new();
         let mut lemma_by_id = HashMap::<usize, Rc<Lemma>>::new();
 
-        let reader = XmlReader::from_reader(BufReader::new(r));
+        let mut reader = Reader::from_reader(BufReader::new(r));
+        let mut buf = Vec::new();
 
-        for ev in reader {
-            match ev {
+        loop {
+            match reader.read_event(&mut buf) {
+                Ok(Event::Empty(ref el)) => {
+                    match el.name() {
+                        b"g" if state == ParsingState::LemmaL => {
+                            for attr in el.attributes() {
+                                let Attribute { key: name, value } = attr?;
+                                match name {
+                                    b"v" => {
+                                        let grammeme = get_grammeme(&grammeme_by_name, value)?;
+                                        current_lemma.grammemes.push(grammeme);
+                                    },
+                                    _ => (),
+                                }
+                            }
+                        },
+                        b"g" if state == ParsingState::LemmaF => {
+                            for attr in el.attributes() {
+                                let Attribute { key: name, value } = attr?;
+                                match name {
+                                    b"v" => {
+                                        let grammeme = get_grammeme(&grammeme_by_name, value)?;
+                                        current_form.grammemes.push(grammeme);
+                                    },
+                                    _ => (),
+                                }
+                            }
+                        },
+                        b"link" if state == ParsingState::Links => {
+                            let mut current_link = Link::default();
+                            for attr in el.attributes() {
+                                let Attribute { key: name, value } = attr?;
+                                match name {
+                                    b"id" => {
+                                        current_link.id = integer_from_bytes(value)?;
+                                    },
+                                    b"from" => {
+                                        let lemma = get_lemma(&lemma_by_id, value)?;
+                                        current_link.from = lemma;
+                                    },
+                                    b"to" => {
+                                        let lemma = get_lemma(&lemma_by_id, value)?;
+                                        current_link.to = lemma;
+                                    },
+                                    b"type" => {
+                                        let kind_id: usize = integer_from_bytes(value)?;
+                                        for lk in &dict.link_kinds {
+                                            if kind_id == lk.id {
+                                                current_link.kind = lk.clone();
+                                            }
+                                        }
+                                    },
+                                    _ => (),
+                                }
+                            }
+                            dict.links.push(current_link.clone());
+                        },
+                        ref name => {
+                            let s = str::from_utf8(name)?;
+                            return Err(DictError::ParsingError(format!("unexpected single tag: '{}'", s)));
+                        },
+                    }
+                },
                 Ok(Event::Start(ref el)) => {
                     match el.name() {
                         b"dictionary" if state == ParsingState::Start => {
                             state = ParsingState::Dictionary;
                             for attr in el.attributes() {
-                                let (name, value) = try!(attr);
+                                let Attribute { key: name, value } = attr?;
                                 match name {
                                     b"version" => {
-                                        dict.version = try!(string_from_bytes(value));
+                                        dict.version = string_from_bytes(value)?;
                                     },
                                     b"revision" => {
-                                        dict.revision = try!(integer_from_bytes(value))
+                                        dict.revision = integer_from_bytes(value)?;
                                     },
                                     _ => (),
                                 }
@@ -224,13 +289,13 @@ impl Dict {
                             state = ParsingState::Grammeme;
                             current_grammeme = Grammeme::default();
                             for attr in el.attributes() {
-                                let (name, value) = try!(attr);
+                                let Attribute { key: name, value } = attr?;
                                 match name {
                                     b"parent" => {
                                         if value.is_empty() {
                                             current_grammeme.parent = None;
                                         } else {
-                                            current_grammeme.parent = Some(try!(string_from_bytes(value)));
+                                            current_grammeme.parent = Some(string_from_bytes(value)?);
                                         }
                                     },
                                     _ => (),
@@ -254,7 +319,7 @@ impl Dict {
                             state = ParsingState::Restriction;
                             current_restriction = Restriction::default();
                             for attr in el.attributes() {
-                                let (name, value) = try!(attr);
+                                let Attribute { key: name, value } = attr?;
                                 match name {
                                     b"type" => {
                                         match value {
@@ -268,14 +333,14 @@ impl Dict {
                                                 current_restriction.kind = RestrictionKind::Forbidden;
                                             },
                                             _ => {
-                                                let s = try!(str::from_utf8(value));
+                                                let s = str::from_utf8(value)?;
                                                 let errmsg = format!("invalid restriction kind: '{}'", s);
                                                 return Err(DictError::ParsingError(errmsg));
                                             }
                                         }
                                     },
                                     b"auto" => {
-                                        current_restriction.auto = try!(integer_from_bytes(value));
+                                        current_restriction.auto = integer_from_bytes(value)?;
                                     },
                                     _ => (),
                                 }
@@ -283,11 +348,11 @@ impl Dict {
                         },
                         b"left" if state == ParsingState::Restriction => {
                             state = ParsingState::RestrictionLeft;
-                            current_restriction.left_scope = try!(get_restriction_scope(el));
+                            current_restriction.left_scope = get_restriction_scope(el)?;
                         },
                         b"right" if state == ParsingState::Restriction => {
                             state = ParsingState::RestrictionRight;
-                            current_restriction.right_scope = try!(get_restriction_scope(el));
+                            current_restriction.right_scope = get_restriction_scope(el)?;
                         },
                         b"lemmata" if state == ParsingState::Dictionary => {
                             state = ParsingState::Lemmata;
@@ -298,13 +363,13 @@ impl Dict {
                             current_lemma = Lemma::default();
                             current_lemma.forms.clear();
                             for attr in el.attributes() {
-                                let (name, value) = try!(attr);
+                                let Attribute { key: name, value } = attr?;
                                 match name {
                                     b"id" => {
-                                        current_lemma.id = try!(integer_from_bytes(value))
+                                        current_lemma.id = integer_from_bytes(value)?;
                                     },
                                     b"rev" => {
-                                        current_lemma.revision = try!(integer_from_bytes(value))
+                                        current_lemma.revision = integer_from_bytes(value)?;
                                     },
                                     _ => (),
                                 }
@@ -314,10 +379,10 @@ impl Dict {
                             state = ParsingState::LemmaL;
                             current_lemma.grammemes.clear();
                             for attr in el.attributes() {
-                                let (name, value) = try!(attr);
+                                let Attribute { key: name, value } = attr?;
                                 match name {
                                     b"t" => {
-                                        current_lemma.word = try!(string_from_bytes(value));
+                                        current_lemma.word = string_from_bytes(value)?;
                                     },
                                     _ => (),
                                 }
@@ -328,34 +393,10 @@ impl Dict {
                             current_form = Form::default();
                             current_form.grammemes.clear();
                             for attr in el.attributes() {
-                                let (name, value) = try!(attr);
+                                let Attribute { key: name, value } = attr?;
                                 match name {
                                     b"t" => {
-                                        current_form.word = try!(string_from_bytes(value));
-                                    },
-                                    _ => (),
-                                }
-                            }
-                        },
-                        b"g" if state == ParsingState::LemmaL => {
-                            for attr in el.attributes() {
-                                let (name, value) = try!(attr);
-                                match name {
-                                    b"v" => {
-                                        let grammeme = try!(get_grammeme(&grammeme_by_name, value));
-                                        current_lemma.grammemes.push(grammeme);
-                                    },
-                                    _ => (),
-                                }
-                            }
-                        },
-                        b"g" if state == ParsingState::LemmaF => {
-                            for attr in el.attributes() {
-                                let (name, value) = try!(attr);
-                                match name {
-                                    b"v" => {
-                                        let grammeme = try!(get_grammeme(&grammeme_by_name, value));
-                                        current_form.grammemes.push(grammeme);
+                                        current_form.word = string_from_bytes(value)?;
                                     },
                                     _ => (),
                                 }
@@ -369,10 +410,10 @@ impl Dict {
                             state = ParsingState::LinkType;
                             current_link_kind = LinkKind::default();
                             for attr in el.attributes() {
-                                let (name, value) = try!(attr);
+                                let Attribute { key: name, value } = attr?;
                                 match name {
                                     b"id" => {
-                                        current_link_kind.id = try!(integer_from_bytes(value));
+                                        current_link_kind.id = integer_from_bytes(value)?;
                                     },
                                     _ => (),
                                 }
@@ -382,37 +423,8 @@ impl Dict {
                             state = ParsingState::Links;
                             dict.links.clear();
                         },
-                        b"link" if state == ParsingState::Links => {
-                            let mut current_link = Link::default();
-                            for attr in el.attributes() {
-                                let (name, value) = try!(attr);
-                                match name {
-                                    b"id" => {
-                                        current_link.id = try!(integer_from_bytes(value));
-                                    },
-                                    b"from" => {
-                                        let lemma = try!(get_lemma(&lemma_by_id, value));
-                                        current_link.from = lemma;
-                                    },
-                                    b"to" => {
-                                        let lemma = try!(get_lemma(&lemma_by_id, value));
-                                        current_link.to = lemma;
-                                    },
-                                    b"type" => {
-                                        let kind_id: usize = try!(integer_from_bytes(value));
-                                        for lk in &dict.link_kinds {
-                                            if kind_id == lk.id {
-                                                current_link.kind = lk.clone();
-                                            }
-                                        }
-                                    },
-                                    _ => (),
-                                }
-                            }
-                            dict.links.push(current_link.clone());
-                        },
                         ref name => {
-                            let s = try!(str::from_utf8(name));
+                            let s = str::from_utf8(name)?;
                             return Err(DictError::ParsingError(format!("unexpected opening tag: '{}'", s)));
                         },
                     }
@@ -420,30 +432,30 @@ impl Dict {
                 Ok(Event::Text(ref el)) => {
                     match state {
                         ParsingState::GrammemeName => {
-                            current_grammeme.name = try!(string_from_bytes(el.content()));
+                            current_grammeme.name = string_from_bytes(&el.unescaped()?)?;
                         },
                         ParsingState::GrammemeAlias => {
-                            current_grammeme.alias = try!(string_from_bytes(el.content()));
+                            current_grammeme.alias = string_from_bytes(&el.unescaped()?)?;
                         },
                         ParsingState::GrammemeDescription => {
-                            current_grammeme.description = try!(string_from_bytes(el.content()));
+                            current_grammeme.description = string_from_bytes(&el.unescaped()?)?;
                         },
                         ParsingState::RestrictionLeft => {
-                            if el.content().len() > 0 {
-                                current_restriction.left_grammeme = Some(try!(get_grammeme(&grammeme_by_name, el.content())));
+                            if el.len() > 0 {
+                                current_restriction.left_grammeme = Some(get_grammeme(&grammeme_by_name, &el.unescaped()?)?);
                             } else {
                                 current_restriction.left_grammeme = None;
                             }
                         },
                         ParsingState::RestrictionRight => {
-                            if el.content().len() > 0 {
-                                current_restriction.right_grammeme = Some(try!(get_grammeme(&grammeme_by_name, el.content())));
+                            if el.len() > 0 {
+                                current_restriction.right_grammeme = Some(get_grammeme(&grammeme_by_name, &el.unescaped()?)?);
                             } else {
                                 current_restriction.right_grammeme = None;
                             }
                         },
                         ParsingState::LinkType => {
-                            current_link_kind.name = try!(string_from_bytes(el.content()));
+                            current_link_kind.name = string_from_bytes(&el.unescaped()?)?;
                         }
                         _ => (),
                     }
@@ -500,7 +512,6 @@ impl Dict {
                             state = ParsingState::Lemma;
                             current_lemma.forms.push(current_form.clone());
                         },
-                        b"g" if state == ParsingState::LemmaL || state == ParsingState::LemmaF => {},
                         b"link_types" if state == ParsingState::LinkTypes => {
                             state = ParsingState::Dictionary;
                         },
@@ -511,17 +522,18 @@ impl Dict {
                         b"links" if state == ParsingState::Links => {
                             state = ParsingState::Dictionary;
                         },
-                        b"link" if state == ParsingState::Links => {},
                         ref name => {
-                            let s = try!(str::from_utf8(name));
+                            let s = str::from_utf8(name)?;
                             return Err(DictError::ParsingError(format!("unexpected closing tag: '{}'", s)));
                         },
                     }
                 },
-                Err((e, pos)) => return Result::Err(DictError::from((e, pos))),
-                _ => (),
+                Err(e) => return Result::Err(DictError::from(e)),
+                Ok(Event::Eof) => break,
+                Ok(Event::Decl(_)) => (),
+                e => panic!("!!! {:?}", e),
             }
-        };
+        }
 
         if state != ParsingState::End {
             Err(DictError::ParsingError(format!("invalid state after parsing: {:?}", state)))
