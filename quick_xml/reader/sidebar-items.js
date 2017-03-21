@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Reader","A low level Xml bytes reader"]]});

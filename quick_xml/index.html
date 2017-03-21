@@ -9,6 +9,7 @@
 
     <title>quick_xml - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
     
@@ -43,89 +44,144 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>quick_xml</a></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>quick_xml</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/quick_xml/lib.rs.html#1-724' title='goto source code'>[src]</a></span></h1>
-<div class='docblock'><p>Quick XmlReader reader which performs <strong>very</strong> well.</p>
+               </span><a class='srclink' href='../src/quick_xml/lib.rs.html#1-126' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>High performance xml reader/writer.</p>
 
 <h2 id='reader' class='section-header'><a href='#reader'>Reader</a></h2>
 <p>Depending on your needs, you can use:</p>
 
 <ul>
-<li><code>XmlReader</code>: for best performance</li>
-<li><code>XmlnsReader</code>: if you need to resolve namespaces (around 50% slower than XmlReader)</li>
+<li><code>Reader</code>: for best performance, user need to take care about buffer allocation/clearing</li>
+<li><code>Reader</code>: a wrapper over <code>Reader</code> which owns its buffer</li>
 </ul>
 
 <h2 id='writer' class='section-header'><a href='#writer'>Writer</a></h2>
-<p><code>XmlWriter</code>: to write xmls. Can be nested with readers if you want to transform xmls</p>
-</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<p><code>Writer</code>: to write xmls. Can be nested with readers if you want to transform xmls</p>
+
+<h2 id='examples' class='section-header'><a href='#examples'>Examples</a></h2>
+<h3 id='reader-1' class='section-header'><a href='#reader-1'>Reader</a></h3>
+<pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">quick_xml</span>::<span class="ident">reader</span>::<span class="ident">Reader</span>;
+<span class="kw">use</span> <span class="ident">quick_xml</span>::<span class="ident">events</span>::<span class="ident">Event</span>;
+ 
+<span class="kw">let</span> <span class="ident">xml</span> <span class="op">=</span> <span class="string">r#&quot;&lt;tag1 att1 = &quot;test&quot;&gt;
+                &lt;tag2&gt;&lt;!--Test comment--&gt;Test&lt;/tag2&gt;
+                &lt;tag2&gt;
+                    Test 2
+                &lt;/tag2&gt;
+            &lt;/tag1&gt;&quot;#</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">Reader</span>::<span class="ident">from_str</span>(<span class="ident">xml</span>);
+<span class="ident">reader</span>.<span class="ident">trim_text</span>(<span class="bool-val">true</span>);
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+
+<span class="comment">// The `Reader` does not implement `Iterator` because it outputs borrowed data (`Cow`s)</span>
+<span class="kw">loop</span> {
+    <span class="kw">match</span> <span class="ident">reader</span>.<span class="ident">read_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>) {
+    <span class="comment">// for triggering namespaced events, use this instead:</span>
+    <span class="comment">// match reader.read_namespaced_event(&amp;mut buf) {</span>
+        <span class="prelude-val">Ok</span>(<span class="ident">Event</span>::<span class="ident">Start</span>(<span class="kw-2">ref</span> <span class="ident">e</span>)) <span class="op">=&gt;</span> {
+        <span class="comment">// for namespaced:</span>
+        <span class="comment">// Ok((ref namespace_value, Event::Start(ref e)))</span>
+            <span class="kw">match</span> <span class="ident">e</span>.<span class="ident">name</span>() {
+                <span class="string">b&quot;tag1&quot;</span> <span class="op">=&gt;</span> <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;attributes values: {:?}&quot;</span>,
+                                    <span class="ident">e</span>.<span class="ident">attributes</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">unwrap</span>().<span class="ident">value</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>_<span class="op">&gt;&gt;</span>()),
+                <span class="string">b&quot;tag2&quot;</span> <span class="op">=&gt;</span> <span class="ident">count</span> <span class="op">+=</span> <span class="number">1</span>,
+                _ <span class="op">=&gt;</span> (),
+            }
+        },
+        <span class="comment">// unescape and decode the text event using the reader encoding</span>
+        <span class="prelude-val">Ok</span>(<span class="ident">Event</span>::<span class="ident">Text</span>(<span class="ident">e</span>)) <span class="op">=&gt;</span> <span class="ident">txt</span>.<span class="ident">push</span>(<span class="ident">e</span>.<span class="ident">unescape_and_decode</span>(<span class="kw-2">&amp;</span><span class="ident">reader</span>).<span class="ident">unwrap</span>()),
+        <span class="prelude-val">Ok</span>(<span class="ident">Event</span>::<span class="ident">Eof</span>) <span class="op">=&gt;</span> <span class="kw">break</span>, <span class="comment">// exits the loop when reaching end of file</span>
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Error at position {}: {:?}&quot;</span>, <span class="ident">reader</span>.<span class="ident">buffer_position</span>(), <span class="ident">e</span>),
+        _ <span class="op">=&gt;</span> (), <span class="comment">// There are several other `Event`s we do not consider here</span>
+    }
+
+    <span class="comment">// if we don&#39;t keep a borrow elsewhere, we can clear the buffer to keep memory usage low</span>
+    <span class="ident">buf</span>.<span class="ident">clear</span>();
+}</pre>
+
+<h3 id='writer-1' class='section-header'><a href='#writer-1'>Writer</a></h3>
+<pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">quick_xml</span>::<span class="ident">writer</span>::<span class="ident">Writer</span>;
+<span class="kw">use</span> <span class="ident">quick_xml</span>::<span class="ident">events</span>::{<span class="ident">Event</span>, <span class="ident">BytesEnd</span>, <span class="ident">BytesStart</span>};
+<span class="kw">use</span> <span class="ident">quick_xml</span>::<span class="ident">reader</span>::<span class="ident">Reader</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Cursor</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
+
+<span class="kw">let</span> <span class="ident">xml</span> <span class="op">=</span> <span class="string">r#&quot;&lt;this_tag k1=&quot;v1&quot; k2=&quot;v2&quot;&gt;&lt;child&gt;text&lt;/child&gt;&lt;/this_tag&gt;&quot;#</span>;
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">Reader</span>::<span class="ident">from_str</span>(<span class="ident">xml</span>);
+<span class="ident">reader</span>.<span class="ident">trim_text</span>(<span class="bool-val">true</span>);
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">Writer</span>::<span class="ident">new</span>(<span class="ident">Cursor</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">new</span>()));
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+<span class="kw">loop</span> {
+    <span class="kw">match</span> <span class="ident">reader</span>.<span class="ident">read_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>) {
+        <span class="prelude-val">Ok</span>(<span class="ident">Event</span>::<span class="ident">Start</span>(<span class="kw-2">ref</span> <span class="ident">e</span>)) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">name</span>() <span class="op">==</span> <span class="string">b&quot;this_tag&quot;</span> <span class="op">=&gt;</span> {
+
+            <span class="comment">// crates a new element ... alternatively we could reuse `e` by calling</span>
+            <span class="comment">// `e.into_owned()`</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">elem</span> <span class="op">=</span> <span class="ident">BytesStart</span>::<span class="ident">owned</span>(<span class="string">b&quot;my_elem&quot;</span>.<span class="ident">to_vec</span>(), <span class="string">&quot;my_elem&quot;</span>.<span class="ident">len</span>());
+
+            <span class="comment">// collect existing attributes</span>
+            <span class="ident">elem</span>.<span class="ident">with_attributes</span>(<span class="ident">e</span>.<span class="ident">attributes</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">unwrap</span>()));
+
+            <span class="comment">// copy existing attributes, adds a new my-key=&quot;some value&quot; attribute</span>
+            <span class="ident">elem</span>.<span class="ident">push_attribute</span>((<span class="string">&quot;my-key&quot;</span>, <span class="string">&quot;some value&quot;</span>));
+
+            <span class="comment">// writes the event to the writer</span>
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">writer</span>.<span class="ident">write_event</span>(<span class="ident">Event</span>::<span class="ident">Start</span>(<span class="ident">elem</span>)).<span class="ident">is_ok</span>());
+        },
+        <span class="prelude-val">Ok</span>(<span class="ident">Event</span>::<span class="ident">End</span>(<span class="kw-2">ref</span> <span class="ident">e</span>)) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">name</span>() <span class="op">==</span> <span class="string">b&quot;this_tag&quot;</span> <span class="op">=&gt;</span> {
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">writer</span>.<span class="ident">write_event</span>(<span class="ident">Event</span>::<span class="ident">End</span>(<span class="ident">BytesEnd</span>::<span class="ident">borrowed</span>(<span class="string">b&quot;my_elem&quot;</span>))).<span class="ident">is_ok</span>());
+        },
+        <span class="prelude-val">Ok</span>(<span class="ident">Event</span>::<span class="ident">Eof</span>) <span class="op">=&gt;</span> <span class="kw">break</span>,
+        <span class="prelude-val">Ok</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">writer</span>.<span class="ident">write_event</span>(<span class="ident">e</span>).<span class="ident">is_ok</span>()),
+        <span class="comment">// or using the buffer</span>
+        <span class="comment">// Ok(e) =&gt; assert!(writer.write(&amp;buf).is_ok()),</span>
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Error at position {}: {:?}&quot;</span>, <span class="ident">reader</span>.<span class="ident">buffer_position</span>(), <span class="ident">e</span>),
+    }
+    <span class="ident">buf</span>.<span class="ident">clear</span>();
+}
+
+<span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">writer</span>.<span class="ident">into_inner</span>().<span class="ident">into_inner</span>();
+<span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="string">r#&quot;&lt;my_elem k1=&quot;v1&quot; k2=&quot;v2&quot; my-key=&quot;some value&quot;&gt;&lt;child&gt;text&lt;/child&gt;&lt;/my_elem&gt;&quot;#</span>;
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>, <span class="ident">expected</span>.<span class="ident">as_bytes</span>());</pre>
+</div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
+<table><tr><td><code>pub use writer::<a class="struct" href="../quick_xml/writer/struct.Writer.html" title="struct quick_xml::writer::Writer">Writer</a>;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='mod' href='attributes/index.html'
-                                  title='quick_xml::attributes'>attributes</a></td>
-                           <td class='docblock short'>
-                                <p>Xml Attributes module</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='mod' href='error/index.html'
-                                  title='quick_xml::error'>error</a></td>
-                           <td class='docblock short'>
+                           <td><a class="mod" href="errors/index.html"
+                                  title='mod quick_xml::errors'>errors</a></td>
+                           <td class='docblock-short'>
                                 <p>Error management module</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='mod' href='namespace/index.html'
-                                  title='quick_xml::namespace'>namespace</a></td>
-                           <td class='docblock short'>
-                                <p>Module for managing XmlnsReader iterator</p>
-                           </td>
-                       </tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
-<table>
-                       <tr class=' module-item'>
-                           <td><a class='struct' href='struct.Element.html'
-                                  title='quick_xml::Element'>Element</a></td>
-                           <td class='docblock short'>
-                                <p>General content of an event (aka node)</p>
+                           <td><a class="mod" href="events/index.html"
+                                  title='mod quick_xml::events'>events</a></td>
+                           <td class='docblock-short'>
+                                <p>A module to handle <code>Event</code> enumerator</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.XmlDecl.html'
-                                  title='quick_xml::XmlDecl'>XmlDecl</a></td>
-                           <td class='docblock short'>
-                                <p>Wrapper around Element to parse XmlDecl</p>
+                           <td><a class="mod" href="reader/index.html"
+                                  title='mod quick_xml::reader'>reader</a></td>
+                           <td class='docblock-short'>
+                                <p>A module to handle <code>Reader</code></p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.XmlReader.html'
-                                  title='quick_xml::XmlReader'>XmlReader</a></td>
-                           <td class='docblock short'>
-                                <p>A Xml reader</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='struct' href='struct.XmlWriter.html'
-                                  title='quick_xml::XmlWriter'>XmlWriter</a></td>
-                           <td class='docblock short'>
-                                <p>Xml writer</p>
-                           </td>
-                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
-<table>
-                       <tr class=' module-item'>
-                           <td><a class='enum' href='enum.Event.html'
-                                  title='quick_xml::Event'>Event</a></td>
-                           <td class='docblock short'>
-                                <p>Event to interprete node as they are parsed</p>
-                           </td>
-                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
-<table>
-                       <tr class=' module-item'>
-                           <td><a class='trait' href='trait.AsStr.html'
-                                  title='quick_xml::AsStr'>AsStr</a></td>
-                           <td class='docblock short'>
-                                <p>A trait to support on-demand conversion from UTF-8</p>
+                           <td><a class="mod" href="writer/index.html"
+                                  title='mod quick_xml::writer'>writer</a></td>
+                           <td class='docblock-short'>
+                                <p>A module to handle <code>Writer</code></p>
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
@@ -150,6 +206,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -181,11 +239,9 @@
     <script>
         window.rootPath = "../";
         window.currentCrate = "quick_xml";
-        window.playgroundUrl = "";
     </script>
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

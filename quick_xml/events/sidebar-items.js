@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Event","Event to interprete node as they are parsed"]],"mod":[["attributes","Xml Attributes module"]],"struct":[["BytesDecl","Wrapper around `BytesElement` to parse/write `XmlDecl`"],["BytesEnd","A struct to manage `Event::End` events"],["BytesStart","A struct to manage `Event::Start` events"],["BytesText","A struct to manage `Event::End` events"]]});

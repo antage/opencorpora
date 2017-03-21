@@ -9,6 +9,7 @@
 
     <title>opencorpora::Dict - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
     
@@ -43,40 +44,58 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>opencorpora</a>::<wbr><a class='struct' href=''>Dict</a></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>opencorpora</a>::<wbr><a class="struct" href=''>Dict</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-172' class='srclink' href='../src/opencorpora/src/dict.rs.html#143-164' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../src/opencorpora/dict.rs.html#143-164' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Dict {
-    pub version: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
-    pub revision: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
-    pub grammemes: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='../opencorpora/struct.Grammeme.html' title='opencorpora::Grammeme'>Grammeme</a>&gt;&gt;,
-    pub restrictions: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../opencorpora/struct.Restriction.html' title='opencorpora::Restriction'>Restriction</a>&gt;,
-    pub lemmata: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='../opencorpora/struct.Lemma.html' title='opencorpora::Lemma'>Lemma</a>&gt;&gt;,
-    pub link_kinds: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='../opencorpora/struct.LinkKind.html' title='opencorpora::LinkKind'>LinkKind</a>&gt;&gt;,
-    pub links: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../opencorpora/struct.Link.html' title='opencorpora::Link'>Link</a>&gt;,
+    pub version: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/string/struct.String.html" title="struct collections::string::String">String</a>,
+    pub revision: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+    pub grammemes: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html" title="struct alloc::rc::Rc">Rc</a>&lt;<a class="struct" href="../opencorpora/struct.Grammeme.html" title="struct opencorpora::Grammeme">Grammeme</a>&gt;&gt;,
+    pub restrictions: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="../opencorpora/struct.Restriction.html" title="struct opencorpora::Restriction">Restriction</a>&gt;,
+    pub lemmata: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html" title="struct alloc::rc::Rc">Rc</a>&lt;<a class="struct" href="../opencorpora/struct.Lemma.html" title="struct opencorpora::Lemma">Lemma</a>&gt;&gt;,
+    pub link_kinds: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html" title="struct alloc::rc::Rc">Rc</a>&lt;<a class="struct" href="../opencorpora/struct.LinkKind.html" title="struct opencorpora::LinkKind">LinkKind</a>&gt;&gt;,
+    pub links: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="../opencorpora/struct.Link.html" title="struct opencorpora::Link">Link</a>&gt;,
 }</pre><div class='docblock'><p>Структура содержащая данные словаря.</p>
-</div><h2 class='fields'>Fields</h2>
-<table><tr class='stab '>
-                             <td id='structfield.version'><code>version</code></td><td><div class='docblock'><p>Версия словаря</p>
-</div></td></tr><tr class='stab '>
-                             <td id='structfield.revision'><code>revision</code></td><td><div class='docblock'><p>Номер ревизии</p>
-</div></td></tr><tr class='stab '>
-                             <td id='structfield.grammemes'><code>grammemes</code></td><td><div class='docblock'><p>Множество граммем</p>
-</div></td></tr><tr class='stab '>
-                             <td id='structfield.restrictions'><code>restrictions</code></td><td><div class='docblock'><p>Множество правил-ограничений на использование граммем</p>
-</div></td></tr><tr class='stab '>
-                             <td id='structfield.lemmata'><code>lemmata</code></td><td><div class='docblock'><p>Массив лексем</p>
-</div></td></tr><tr class='stab '>
-                             <td id='structfield.link_kinds'><code>link_kinds</code></td><td><div class='docblock'><p>Множество типов связей между лексемами</p>
-</div></td></tr><tr class='stab '>
-                             <td id='structfield.links'><code>links</code></td><td><div class='docblock'><p>Множество связей между лексемами</p>
-</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../opencorpora/struct.Dict.html' title='opencorpora::Dict'>Dict</a></code></h3><div class='impl-items'><h4 id='method.read_from_xml' class='method'><code>fn <a href='#method.read_from_xml' class='fnname'>read_from_xml</a>&lt;R: <a class='trait' href='https://doc.rust-lang.org/nightly/std/io/trait.Read.html' title='std::io::Read'>Read</a>&gt;(r: R) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../opencorpora/struct.Dict.html' title='opencorpora::Dict'>Dict</a>, <a class='enum' href='../opencorpora/enum.DictError.html' title='opencorpora::DictError'>DictError</a>&gt;</code></h4>
+</div><h2 class='fields'>Fields</h2><span id='structfield.version' class="structfield">
+                           <span id='version.v' class='invisible'>
+                           <code>version: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/string/struct.String.html" title="struct collections::string::String">String</a></code>
+                           </span></span><div class='docblock'><p>Версия словаря</p>
+</div><span id='structfield.revision' class="structfield">
+                           <span id='revision.v' class='invisible'>
+                           <code>revision: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code>
+                           </span></span><div class='docblock'><p>Номер ревизии</p>
+</div><span id='structfield.grammemes' class="structfield">
+                           <span id='grammemes.v' class='invisible'>
+                           <code>grammemes: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html" title="struct alloc::rc::Rc">Rc</a>&lt;<a class="struct" href="../opencorpora/struct.Grammeme.html" title="struct opencorpora::Grammeme">Grammeme</a>&gt;&gt;</code>
+                           </span></span><div class='docblock'><p>Множество граммем</p>
+</div><span id='structfield.restrictions' class="structfield">
+                           <span id='restrictions.v' class='invisible'>
+                           <code>restrictions: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="../opencorpora/struct.Restriction.html" title="struct opencorpora::Restriction">Restriction</a>&gt;</code>
+                           </span></span><div class='docblock'><p>Множество правил-ограничений на использование граммем</p>
+</div><span id='structfield.lemmata' class="structfield">
+                           <span id='lemmata.v' class='invisible'>
+                           <code>lemmata: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html" title="struct alloc::rc::Rc">Rc</a>&lt;<a class="struct" href="../opencorpora/struct.Lemma.html" title="struct opencorpora::Lemma">Lemma</a>&gt;&gt;</code>
+                           </span></span><div class='docblock'><p>Массив лексем</p>
+</div><span id='structfield.link_kinds' class="structfield">
+                           <span id='link_kinds.v' class='invisible'>
+                           <code>link_kinds: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html" title="struct alloc::rc::Rc">Rc</a>&lt;<a class="struct" href="../opencorpora/struct.LinkKind.html" title="struct opencorpora::LinkKind">LinkKind</a>&gt;&gt;</code>
+                           </span></span><div class='docblock'><p>Множество типов связей между лексемами</p>
+</div><span id='structfield.links' class="structfield">
+                           <span id='links.v' class='invisible'>
+                           <code>links: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html" title="struct collections::vec::Vec">Vec</a>&lt;<a class="struct" href="../opencorpora/struct.Link.html" title="struct opencorpora::Link">Link</a>&gt;</code>
+                           </span></span><div class='docblock'><p>Множество связей между лексемами</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class="struct" href="../opencorpora/struct.Dict.html" title="struct opencorpora::Dict">Dict</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/opencorpora/lib.rs.html#175-544' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.read_from_xml' class="method"><span id='read_from_xml.v' class='invisible'><code>fn <a href='#method.read_from_xml' class='fnname'>read_from_xml</a>&lt;R:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html" title="trait std::io::Read">Read</a>&gt;(r: R) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../opencorpora/struct.Dict.html" title="struct opencorpora::Dict">Dict</a>, <a class="enum" href="../opencorpora/enum.DictError.html" title="enum opencorpora::DictError">DictError</a>&gt;</code></span></h4>
 <div class='docblock'><p>читает словарь из XML-файла.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../opencorpora/struct.Dict.html' title='opencorpora::Dict'>Dict</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../opencorpora/struct.Dict.html' title='opencorpora::Dict'>Dict</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../opencorpora/struct.Dict.html' title='opencorpora::Dict'>Dict</a></code></h4>
-</div></section>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="struct" href="../opencorpora/struct.Dict.html" title="struct opencorpora::Dict">Dict</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/opencorpora/dict.rs.html#142' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.default' class="method"><span id='default.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; <a class="struct" href="../opencorpora/struct.Dict.html" title="struct opencorpora::Dict">Dict</a></code></span></h4>
+<div class='docblock'><p>Returns the &quot;default value&quot; for a type. <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../opencorpora/struct.Dict.html" title="struct opencorpora::Dict">Dict</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/opencorpora/dict.rs.html#142' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -99,6 +118,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -130,11 +151,9 @@
     <script>
         window.rootPath = "../";
         window.currentCrate = "opencorpora";
-        window.playgroundUrl = "";
     </script>
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>
