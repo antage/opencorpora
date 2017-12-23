@@ -4,7 +4,7 @@
 
 Данная библиотека написана для парсинга словаря проекта [opencorpora.org](http://opencorpora.org/dict.php). Библиотека читает словарь в XML-формате и формирует данные в виде набора структур.
 
-[Документация](https://antage.github.io/opencorpora/opencorpora/index.html)
+[Документация](https://docs.rs/opencorpora)
 
 ## Ссылки
 * [Формат словаря](http://opencorpora.org/?page=export).
