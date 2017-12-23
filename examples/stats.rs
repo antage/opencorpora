@@ -4,7 +4,7 @@ use opencorpora::Dict;
 
 fn main() {
     use std::fs::File;
-    let file = File::open("dict/dict.xml").unwrap();
+    let file = File::open("dict/test_dict.xml").unwrap();
     match Dict::read_from_xml(&file) {
         Ok(dict) => {
             println!("Version: {}", dict.version);
@@ -36,7 +36,7 @@ fn main() {
             println!("Max grammemes in a form: {}", max_grammemes_in_form);
             println!("Link types count: {}", dict.link_kinds.len());
             println!("Links count: {}", dict.links.len());
-        },
+        }
         Err(e) => {
             println!("ERROR: {}", e);
         }
