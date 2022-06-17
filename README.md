@@ -7,6 +7,7 @@
 [Документация](https://docs.rs/opencorpora)
 
 ## Ссылки
+
 * [Формат словаря](http://opencorpora.org/?page=export).
 * [Список граммем](http://opencorpora.org/dict.php?act=gram).
 * [Ограничения на граммемы](http://opencorpora.org/dict.php?act=gram_restr).
@@ -14,8 +15,6 @@
 ## Пример использования
 
 ```rust
-extern crate opencorpora;
-
 use opencorpora::Dict;
 
 fn main() {

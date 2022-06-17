@@ -1,5 +1,3 @@
-extern crate opencorpora;
-
 use opencorpora::Dict;
 
 fn main() {

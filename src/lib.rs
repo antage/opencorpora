@@ -6,8 +6,6 @@
 //! ## Чтение XML-словаря
 //!
 //! ```no_run
-//! extern crate opencorpora;
-//!
 //! use opencorpora::Dict;
 //!
 //! fn main() {
@@ -31,17 +29,13 @@
 //! }
 //! ```
 
-#[macro_use]
-extern crate error_chain;
-extern crate quick_xml;
-
 pub mod error;
 mod dict;
 
 pub use dict::{Dict, Form, Grammeme, Lemma, Link, LinkKind, Restriction, RestrictionKind,
                RestrictionScope};
 
-use error::{ErrorKind, Result};
+use error::{Error, Result};
 
 #[derive(Debug, PartialEq, Eq)]
 enum ParsingState {
@@ -95,13 +89,13 @@ fn get_restriction_scope(el: &quick_xml::events::BytesStart) -> Result<Restricti
                 _ => {
                     let s = std::str::from_utf8(&value)?;
                     let errmsg = format!("invalid restriction scope: '{}'", s);
-                    return Err(ErrorKind::ParsingError(errmsg).into());
+                    return Err(Error::Parsing(errmsg));
                 }
             },
             _ => (),
         }
     }
-    Err(ErrorKind::ParsingError("restriction scope isn't found".to_owned()).into())
+    Err(Error::Parsing("restriction scope isn't found".to_owned()))
 }
 
 fn get_grammeme(
@@ -111,7 +105,7 @@ fn get_grammeme(
     let s = string_from_bytes(name)?;
     match map.get(&s) {
         Some(grm) => Ok(grm.clone()),
-        None => Err(ErrorKind::ParsingError(format!("invalid grammeme name: '{}'", s)).into()),
+        None => Err(Error::Parsing(format!("invalid grammeme name: '{}'", s))),
     }
 }
 
@@ -122,7 +116,7 @@ fn get_lemma(
     let id = integer_from_bytes(id_str)?;
     match map.get(&id) {
         Some(lmt) => Ok(lmt.clone()),
-        None => Err(ErrorKind::ParsingError(format!("invalid lemma id: '{}'", id)).into()),
+        None => Err(Error::Parsing(format!("invalid lemma id: '{}'", id))),
     }
 }
 
@@ -134,7 +128,7 @@ impl Dict {
         use std::str;
         use std::collections::HashMap;
 
-        use quick_xml::reader::Reader;
+        use quick_xml::Reader;
         use quick_xml::events::Event;
         use quick_xml::events::attributes::Attribute;
 
@@ -208,10 +202,10 @@ impl Dict {
                     }
                     ref name => {
                         let s = str::from_utf8(name)?;
-                        return Err(ErrorKind::ParsingError(format!(
+                        return Err(Error::Parsing(format!(
                             "unexpected single tag: '{}'",
                             s
-                        )).into());
+                        )));
                     }
                 },
                 Ok(Event::Start(ref el)) => match el.name() {
@@ -284,7 +278,7 @@ impl Dict {
                                     _ => {
                                         let s = str::from_utf8(&value)?;
                                         let errmsg = format!("invalid restriction kind: '{}'", s);
-                                        return Err(ErrorKind::ParsingError(errmsg).into());
+                                        return Err(Error::Parsing(errmsg));
                                     }
                                 },
                                 b"auto" => {
@@ -373,10 +367,10 @@ impl Dict {
                     }
                     ref name => {
                         let s = str::from_utf8(name)?;
-                        return Err(ErrorKind::ParsingError(format!(
+                        return Err(Error::Parsing(format!(
                             "unexpected opening tag: '{}'",
                             s
-                        )).into());
+                        )));
                     }
                 },
                 Ok(Event::Text(ref el)) => match state {
@@ -473,10 +467,10 @@ impl Dict {
                     }
                     ref name => {
                         let s = str::from_utf8(name)?;
-                        return Err(ErrorKind::ParsingError(format!(
+                        return Err(Error::Parsing(format!(
                             "unexpected closing tag: '{}'",
                             s
-                        )).into());
+                        )));
                     }
                 },
                 Err(e) => return Err(e.into()),
@@ -487,7 +481,7 @@ impl Dict {
         }
 
         if state != ParsingState::End {
-            Err(ErrorKind::ParsingError(format!("invalid state after parsing: {:?}", state)).into())
+            Err(Error::Parsing(format!("invalid state after parsing: {:?}", state)))
         } else {
             Ok(dict)
         }
